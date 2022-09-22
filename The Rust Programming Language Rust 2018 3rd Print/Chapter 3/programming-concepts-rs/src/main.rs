@@ -211,13 +211,38 @@ fn five() -> i32{
     5
 }
 
+//Note - If semicolon is added at the end of this line, it would throw mismatched types () in i32.
+//       x + 1 is the correct syntax for this case.
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+
 //In which, the x value should print 5.
-//Note - One can also do the one below x. But is it less readable?
+//Note - One can also do five() instead of x. But is it less or more readable?
 fn checking_with_function_returning_value(){
     let x = five();
 
     println!("The value of x is: {}", x);
     println!("The value of five is: {}", five());
+
+    let x = plus_one(5);
+
+    println!("The value of x is: {}", x);
+}
+
+fn rust_comments_tutorial(){
+    //Rust Comments Tutorial
+    // Hello World!
+
+    // So we're doing something complicated here, long enough that we need
+    // multiple lines of comments to do it! Whew! Hopefully, this comment will
+    // explain what's going on
+
+    let lucky_number = 7; // I'm feeling lucky today
+
+    //This one is the more common commenting format than the one above.
+    //I'm feeling lucky today
+    let lucky_number = 7;
 }
 
 fn main(){
@@ -230,5 +255,6 @@ fn main(){
     function_demo3();
     scopes_test();
     checking_with_function_returning_value();
-    //TODO: Incomplete, continue later at Page 49!
+    rust_comments_tutorial();
+    //TODO: Incomplete, continue later at Page 50, Control Flow section, if Expression subsection.
 }
