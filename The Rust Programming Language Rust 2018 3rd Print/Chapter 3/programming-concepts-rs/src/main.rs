@@ -245,6 +245,148 @@ fn rust_comments_tutorial(){
     let lucky_number = 7;
 }
 
+fn control_flow(){
+    let number = 3;
+
+    //This outputs 'condition was true'
+    //Note - Block of code associated with the conditions in if expressions is sometimes
+    //       called 'arms'.
+    if number < 5 {
+        println!("condition was true");
+    } else {
+        println!("condition was false");
+    }
+
+    let number = 7;
+
+    //This outputs 'condition was false'
+    if number < 5 {
+        println!("condition was true");
+    } else {
+        println!("condition was false");
+    }
+
+    //Note - This one gives a mismatched types error because the if statement expects a bool.
+    //       In which, it additionally outputs "expected type 'bool' found type '{integer}'"
+    let number = 3;
+    /*
+    if number {
+        println!("number was three");
+    }
+    */
+
+    //In which, you can fix it by doing something like this:
+    //Output for this one is "number was something other than zero"
+    if number != 0 { //This evaluates the variable 'number' and returns true or false (bool)
+        println!("number was something other than zero");
+    }
+
+    //Handling Multiple Conditions with else if
+    let number = 6;
+
+    //Output for this one is 'number is divisible by 3'
+    //Note - Be careful to not have too many else ifs. This will clutter your code.
+    //       In which, refactoring code may be necessary.
+    if number % 4 == 0 {
+        println!("number is divisible by 4");
+    } else if number % 3 == 0 {
+        println!("number is divisible by 3");
+    } else if number % 2 == 0 {
+        println!("number is divisible by 2");
+    } else {
+        println!("number is not divisible by 4, 3, or 2");
+    }
+
+    //Using if in a let Statement
+    //Output for this one is 'The value for this number is: 5'.
+    let condition = true;
+    let number = if condition {
+        5
+    } else {
+        6
+    };
+
+    println!("The value of this number is: {}", number);
+
+    // Note - This one throws an error since the if statement takes the first expected value, and
+    //        it would then expects the same variable type for second and later values.
+    //        In short, if and else statement must evaluate to the same data type.
+    let condition = true;
+
+    /*
+    let number = if condition {
+        5
+    } else {
+        "six"
+    };
+     */
+
+    println!("The value of number is: {}", number);
+}
+
+fn repetition_with_loops(){
+    //Note - This loop indefinitely loops until the user uses the keyboard shortcut CTRL+C if the
+    //       'break' keyword is commented.
+    loop {
+        println!("again!");
+        break;
+    }
+
+    //Note - This loop increments the counter until the value 10, in which it would then return 20
+    //       because of break counter(value is 10 by the last iteration) * 2;
+    let mut counter = 0;
+
+    let result = loop {
+        counter += 1;
+
+        if counter == 10{
+            break counter * 2;
+        }
+    };
+
+    //Loop continues until the number reaches 0 (More accurately loop continues when the value
+    //is non-zero.
+    //For this one, it outputs "3!", "2!", "1!", and "LIFTOFF!!!"
+    let mut number = 3;
+
+    while number != 0{
+        println!("{}!", number );
+
+        number = number - 1;
+    }
+
+    println!("LIFTOFF!!!");
+
+    //The loop keeps looping until it reaches the end of the array, which is index 4.
+    //For this one, it outputs 10, 20, 30, 40, and 50 in that order.
+    //Warning - The index value must be changed when the array size is changed.
+    //          It may cause out of bounds error or logical error!
+    let a = [10, 20, 30, 40, 50];
+    let mut index = 0;
+
+    while index < 5{
+        println!("the value is: {}", a[index]);
+
+        index = index + 1;
+    }
+
+    //For loop version of the while loop
+    //This is the most commonly used loop for Rust users.
+    let a = [10, 20, 30, 40, 50];
+
+    for element in a.iter() {
+        println!("the value is: {}", element);
+    }
+
+    //Similar loop as the liftoff one, but this one is using range (1..4 thing) and reverse (rev)
+    //Looks pretty cool to be honest!
+    for number in (1..4).rev(){
+        println!("{}!", number);
+    }
+
+    println!("LIFTOFF!");
+}
+
 fn main(){
     variables_and_mutability();
     scalar_types();
@@ -256,5 +398,6 @@ fn main(){
     scopes_test();
     checking_with_function_returning_value();
     rust_comments_tutorial();
-    //TODO: Incomplete, continue later at Page 50, Control Flow section, if Expression subsection.
+    control_flow();
+    repetition_with_loops();
 }
