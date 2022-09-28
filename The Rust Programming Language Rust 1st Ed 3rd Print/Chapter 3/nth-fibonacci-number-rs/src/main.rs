@@ -8,6 +8,10 @@ fn fibonacci_number_list(index : usize) -> i32{
 }
 
 fn main() {
+    //TODO: Generating nth fibonacci numbers instead of hard coding, and using array would be more
+    //      elegant and flexible, no?
+    //      Be sure to keep in mind of i32 limitations though, maybe change to u32 instead of i32
+    //      while at it?
     println!("Welcome to nth Fibonacci Number program!");
     println!("Note - Only index in range of 0 to 20 inclusive is supported.");
     println!("Please choose the index you want for the Fibonacci number calculation.");
