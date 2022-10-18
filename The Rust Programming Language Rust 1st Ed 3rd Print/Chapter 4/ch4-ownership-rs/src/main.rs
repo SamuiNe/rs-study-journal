@@ -122,6 +122,11 @@ fn takes_and_gives_back(a_string: String) -> String{ //a_string comes into scope
 fn return_values_and_scope_part_b(){
     let s1 = String::from("hello");
 
+    //Note - This is valid since the calculate_length returns a tuple, in which it matches
+    //       the tuple on the left hand side.
+    //Warning - The string part must be returned on the calculate_length for this case, since
+    //          s1 was moved to the calculate_length method. If this is not done, the string
+    //          would be lost when the passed s1 goes out of scope inside the calculate_length.
     let (s2, len) = calculate_length(s1);
 
     println!("The length of '{}' is {}.", s2, len);
@@ -134,6 +139,31 @@ fn calculate_length(s: String) -> (String, usize){
     (s, length)
 }
 
+
+fn references_and_borrowing(){
+    let s1 = String::from("Hello!");
+
+    let len = calculate_length_reference(&s1);
+
+    println!("The length of '{}' is {}.", s1, len);
+}
+
+fn calculate_length_reference(s: &String) -> usize {
+    s.len()
+}   // Here, s goes out of scope. But because it does not have ownership
+    // of what it refers to, nothing happens.
+
+fn modifying_a_borrowed_value(){
+    let s = String::from("Hello!");
+
+    change(&s);
+}
+
+fn change(some_string: &string){
+    some_string.push_str(" World!");
+
+}
+
 fn main() {
     scope_test();
     string_from_heap();
@@ -143,4 +173,9 @@ fn main() {
     ownership_and_functions();
     return_values_and_scope();
     return_values_and_scope_part_b();
+    references_and_borrowing();
+
+    //Note - This function throws the following error:
+    //       cannot borrow 's' as mutable more than once at a time
+    //modifying_a_borrowed_value();
 }
