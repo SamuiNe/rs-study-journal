@@ -153,15 +153,236 @@ fn calculate_length_reference(s: &String) -> usize {
 }   // Here, s goes out of scope. But because it does not have ownership
     // of what it refers to, nothing happens.
 
-fn modifying_a_borrowed_value(){
+//Note - this function with modifying_a_borrowed_value_part_a function throws the following error:
+//       cannot borrow immutable borrowed content '*some_string' as mutable
+/*
+fn modifying_a_borrowed_value_part_a(){
     let s = String::from("Hello!");
 
-    change(&s);
+    change_part_a(&s);
 }
 
-fn change(some_string: &string){
+fn change_part_a(some_string: &String){
     some_string.push_str(" World!");
 
+}
+*/
+
+//This one is the corrected version of part a.
+fn modifying_a_borrowed_value_part_b(){
+    let mut s = String::from("hello");
+
+    change_part_b(&mut s);
+}
+
+fn change_part_b(some_string: &mut String){
+    some_string.push_str(" World!");
+
+}
+
+//Note - This function throws the following error:
+//       cannot borrow 's' as mutable more than once at a time
+//       Rust does have this restriction to prevent data races at compile time.
+/*
+fn mutable_references_part_a(){
+    let mut s = String::from("hello");
+
+    let r1 = &mut s;
+    let r2 = &mut s;
+
+    println!("{}, {}", r1, r2);
+}
+*/
+
+fn mutable_references_part_b(){
+    let mut s = String::from("hello");
+
+    {
+        let r1 = &mut s;
+    } // r1 goes out of scope here, so we can make a new reference with no problems.
+
+    let r2 = &mut s;
+}
+
+//Note - Mixing immutable and mutable borrow is not allowed for Rust.
+//       When at least one immutable reference is used, all future references needs to be immutable.
+//       For this function, it throws the following error:
+//       cannot borrow 's' as mutable because it is borrowed as immutable
+/*
+fn mixing_mutable_and_immutable_references(){
+    let mut s = String::from("hello");
+
+    let r1 = &s; // no problem
+    let r2 = &s; // no problem
+    let r3 = &mut s; // BIG PROBLEM
+
+    println!("{}, {}, and {}", r1, r2, r3);
+}
+*/
+
+fn dangling_pointer(){
+    let reference_to_nothing = dangle_part_b();
+}
+
+//Note - This function causes an error to the function above, with the following error:
+//       missing lifetime specifier
+/*
+fn dangle_part_a() -> &String{ // dangle returns a reference to a String
+    let s = String::from("hello"); // s is a new String
+
+    &s // We return a reference to the string, s
+} // Here, s goes out of scope, and is dropped. Its memory goes away
+// Danger!
+*/
+
+//The solution for this error
+fn dangle_part_b() -> String{
+    let s = String::from("hello");
+
+    s
+}
+
+fn slice_types_part_a() {
+    let mut s = String::from("Hello world!");
+
+    let word = first_word(&s); // word will get the value 5
+    s.clear(); // This empties the String, making it equal to ""
+
+    // word still have the value 5 here, but there's no more string that we could
+    // meaningfully use the value 5 with. word is now totally invalid!
+}
+
+//Finds the first word of a string.
+//Step 1 : Convert the s String reference as an array of bytes stored in immutable array bytes
+//Step 2 : Create an iterator over the array of bytes using the iter()
+//Step 3 : Return each element as part of a tuple using enumerate()
+//Note - The first element of the tuple returned from enumerate is the index, and the second
+//       element is the reference to the element.
+//Example - The tuple looks like this (?):
+//          ((0, b'h'), (1, b'e'), (2, b'l'), (3, b'l'), (4, b'o'))
+//Note - & must be used for the item because it is the reference of the element from the
+//       .iter().enumerate().
+//Outcome 1 : Once the function encounters a space, return the current index.
+//Outcome 2 : If no space is found, return the length of the string.
+//Warning - Since the value is separate from the String, there is no guarantee it will be valid
+//          in the future.
+fn first_word(s: &String) -> usize {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate(){
+        if item == b' ' {
+            return i;
+        }
+    }
+
+    s.len()
+}
+
+fn slice_types_part_b(){
+    let mut s = String::from("Hello World!");
+
+    let word = first_word(&s); // word will get the value 5
+    s.clear(); // this empties the String, making it equal to ""
+
+    // word still has the value 5 here, but there's no more string that we could meaningfully
+    // use the value 5 with. word is now totally invalid!
+}
+
+fn string_slices_part_a(){
+    let s= String::from("Hello World!");
+
+    //This is Rust's string slice, in which it is a partial reference to the String.
+    //Note - .. syntax is called the range syntax,
+    //       where it is formatted as [starting_index..ending_index].
+    //Note - If one wants to go from the beginning (zero index), starting index can be omitted.
+    //       For example, [..5] on the hello immutable variable like the one below.
+    //Note - If one wants to include the last byte of the String, ending index can also be omitted.
+    //       For example, [6..] on the world immutable variable like the one below.
+    let hello = &s[0..5];
+    let world = &s[6..11];
+}
+
+fn string_slices_equivalent_a(){
+    let s = String::from("hello");
+
+    let len = s.len();
+
+    //These two below does the same thing.
+    let slice = &s[3..len];
+    let slice = &s[3..];
+}
+
+fn string_slices_equivalent_b(){
+    let s = String::from("hello");
+
+    let len = s.len();
+
+    //These two below also does the same thing.
+    let slice = &s[0..len];
+    let slice = &s[..];
+}
+
+fn first_word_revised(s: &String) -> &str{
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate(){
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+
+/*
+fn string_slices_part_b(){
+    let mut s = String::from("Hello World");
+
+    let word = first_word_revised(&s);
+
+    //Note - This line will throw an error, in which the error is the following:
+    //       cannot borrow 's' as mutable because it is also borrowed as immutable
+    s.clear(); //This will throw an error
+
+    println!("the first word is: {}", word);
+}
+*/
+
+//Note - This one requires string slices.
+fn first_word_revised_2(s: &str) -> &str{
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate(){
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+
+fn string_slices_part_c(){
+    let my_string = String::from("Hello World");
+
+    // first_word works on slices of 'String's
+    let word = first_word_revised_2(&my_string[..]);
+
+    let my_string_literal = "Hello World";
+
+    // first_word works on slices of string literals
+    let word = first_word_revised_2(&my_string_literal[..]);
+
+    // Because string literals *are* string slices already, this works too,
+    // without the slice syntax!
+    let word = first_word_revised_2(my_string_literal);
+
+}
+
+fn integer_slices(){
+    let a = [1, 2, 3, 4, 5];
+
+    //This one creates a slice [2, 3, 4]
+    let slice = &a[1..3];
 }
 
 fn main() {
@@ -174,8 +395,17 @@ fn main() {
     return_values_and_scope();
     return_values_and_scope_part_b();
     references_and_borrowing();
+    //modifying_a_borrowed_value_part_a();
+    modifying_a_borrowed_value_part_b();
+    //mutable_references_part_a();
+    mutable_references_part_b();
+    //mixing_mutable_and_immutable_references();
+    dangling_pointer();
+    slice_types_part_a();
+    slice_types_part_b();
+    string_slices_part_a();
+    //string_slices_part_b();
+    string_slices_part_c();
+    integer_slices();
 
-    //Note - This function throws the following error:
-    //       cannot borrow 's' as mutable more than once at a time
-    //modifying_a_borrowed_value();
 }
